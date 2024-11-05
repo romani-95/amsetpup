@@ -1,0 +1,27 @@
+# General settings:
+ENCUT  = 450
+ADDGRID = True
+PREC   = Accurate
+LCHARG = .FALSE.
+LWAVE  = .FALSE.
+GGA = PS
+ALGO = Normal
+IBRION = -1
+LASPH = True
+
+# SCF:
+EDIFF  = 1E-8
+ISMEAR = 0
+SIGMA   = 0.01
+NELM = 100
+NSW = 0
+
+# Optics:
+ISMEAR = -5
+CSHIFT = 1E-6
+NEDOS = 2000
+LOPTICS = True
+LREAL = False
+NBANDS = 100
+
+

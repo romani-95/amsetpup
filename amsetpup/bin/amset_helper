@@ -1,0 +1,56 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+
+BCyan='\033[1;36m'        # Cyan
+NC='\033[0m' # No Color
+BRed='\033[1;31m'         # Red
+UWhite='\033[4;37m' #White
+
+echo -e ${BRed}'###################################
+Commands to help with amset inputs:
+###################################'${NC}
+echo -e ${BCyan}'General commands:'${NC}
+echo -e 'rmvasp: remove vasp files in order to rerun properly a job
+rmamset: remove amset files in order to rerun properly a job
+run-vasp: run vasp in all the subdirectories
+run-wave: run amset wave in all the subdirectories
+history | grep "" '
+echo -e ${BCyan}'%%%%%%  Convergence study  %%%%%%%%'${NC}
+echo -e 'POSCAR from cif via 'vaspkit'
+POTCAR from POSCAR via 'generate-potcar'
+CONFIG, INCAR and KPOINTS via 'get-conv-files' 
+KPOINTS via 'kgs_gen_kpts' (or 'vaspkit')
+generate-converge: vaspup2.0 command to generate the files wrt to the CONFIG
+data-converge: run within the kpoint_converge and ecut_converge dir to extract total energies'
+echo -e '!convergence is assumed with a diff of less than 1mev/atom!'
+echo -e ${BCyan}'%%%%%%  Gen amset inputs  %%%%%%%%'${NC}
+echo -e 'generate-amset: generate the different files and directories following SMTG methodology'
+echo -e ${BCyan}'%%%%%%%%%   wfk file    %%%%%%%%%%%'${NC}
+echo -e 'amset wave: construct the full electron wavefunctions.'
+echo -e ${BCyan}'%%%%%%%%   deform calc   %%%%%%%%%%'${NC}
+echo -e 'amset deform read undeformed def-1 def-2 def-3 def-4 def-5 def-6 def-7 def-8 def-9 def-10 def-11 def-12'
+echo -e ${BCyan}'%%%%%%%%%%   opt diel   %%%%%%%%%%%'${NC}
+echo -e '!nband convergence needed for optical dielectric constant (GGA for convergence then hybrid one-shot calc)!'
+echo -e 'nbands-epsopt-data-converge: check convergence wrt the diel constant'
+echo -e 'Searching for REAL DIELECTRIC FUNCTION in the OUTCAR (full line reads frequency dependent REAL DIELECTRIC FUNCTION (independent particle, no local field effects) density-density)'
+echo -e ${BCyan}'%%%%%%%%   elastic cst    %%%%%%%%%'${NC}
+echo -e 'Searching for TOTAL ELASTIC MODULI in the OUTCAR
+!If the main diagonal is not positive, something may be wrong !
+sanity check: https://d32ogoqmya1dw8.cloudfront.net/images/NAGTWorkshops/mineralogy/mineral_physics/table_9.v13.png !
+To extract and transform in GPa (kBar in OUTCAR): convert_elastic'
+echo -e ${BCyan}'%%%%%%%%%    dftp calc    %%%%%%%%%'${NC}
+echo -e '!if GGA BG lower than 0.5eV need to use hybrid with finite diff (check tuto)!
+dfpt-data-converge: run within the kpoint_converge and ecut_converge dir to extract diel ionic tensor
+\n%Piezo: search for PIEZOELECTRIC TENSOR IONIC CONTR in the OUTCAR
+!Need to re-order the values! Use piezo_amset to copy the script to re-order the values
+Sanity check: https://docs.materialsproject.org/methodology/materials-methodology/piezoelectric-constants#crystal-symmetry
+\n% Ionic diel cst: search for MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC CONTRIBUTION in the OUTCAR !then add the values to highfreq diel to get the static diel!
+\n% LO freq: amset phonon-frequency (check if no negative phonon: amset phonon-frequency)'
+echo -e ${BCyan}'%%%%%%%%     amset_run   %%%%%%%%%%'${NC}
+echo -e 'run-amset-CRTA: run amset CRTA in the different subdirectories (need wavefunctions from run-wave first)
+check_interp: check the convergence of the interpolation factor and give the converged mobs in a dir
+get-amset-result: check the convergence of the interpolation factor and give the converged mobs for all the subdirs'
+echo -e ${BCyan}'%%%%%%%%     band_structure   %%%%%%%%%%'${NC}
+echo -e 'Need to redo a wfk calc with no ISMEAR, no print of WFK":w
+sumo-kgen -f (-y) -s 30 in a wfk directory with -y if hybrid calc and -s for splitting'
+

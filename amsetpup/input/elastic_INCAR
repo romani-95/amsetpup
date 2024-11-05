@@ -1,0 +1,18 @@
+# General settings:
+ENCUT  = 450
+ADDGRID = True
+PREC   = Accurate
+LCHARG = .FALSE.
+LWAVE  = .FALSE.
+GGA = PS
+ALGO = Normal
+
+# Finite Diff
+IBRION = 6
+ISYM = -1
+ISIF = 3
+LEPSILON = True
+LREAL = False
+NSW = 1  # One ionic step
+EDIFF = 1E-8
+EDIFFG = -5E-4

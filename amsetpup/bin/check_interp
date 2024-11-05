@@ -1,0 +1,11 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+
+count1=`ls -1 *.json 2>/dev/null | wc -l`
+if [ $count1 != 0 ]
+then
+python /rds/homes/c/claesr/codes/amsetpup/script/check_interpolation.py && python /rds/homes/c/claesr/codes/amsetpup/script/check_interpolation_tight.py 
+else
+echo ... No .json in this directory ... 
+fi
+

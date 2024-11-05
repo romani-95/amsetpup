@@ -1,0 +1,8 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+
+for D in *; do
+    if [ -d "${D}" ]; then
+        echo "${D}" && cd "${D}" && cp /rds/homes/c/claesr/codes/amsetpup/input/settings_CRTA.yaml settings.yaml && cp /rds/homes/c/claesr/codes/amsetpup/input/run_amset.sh . && sbatch run_amset.sh && cd ../ # your processing here
+    fi
+done

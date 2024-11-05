@@ -1,0 +1,29 @@
+# General settings:
+ENCUT  = 450
+ADDGRID = True
+PREC   = Accurate
+LCHARG = .FALSE.
+LWAVE  = .FALSE.
+IBRION = -1
+LASPH = True
+
+# SCF:
+EDIFF  = 1E-8
+ISMEAR = 0
+SIGMA   = 0.01
+NELM = 200
+
+# DOS:
+LORBIT = 11
+NEDOS  = 2000
+
+# DEFORM:
+NSW = 0
+ICORELEVEL = 1
+NELM = 200
+
+# PBE0:
+GGA = PE
+LHFCALC = True
+ALGO = Damped
+TIME = 0.8

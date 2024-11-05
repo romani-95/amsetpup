@@ -1,0 +1,14 @@
+# general settings
+ doping: [-1E15]
+ temperatures: 300
+ scattering_type: ["CRT"]
+
+# electronic_structure settings
+ interpolation_factor: 10
+
+ wavefunction_coefficients: "wavefunction.h5"
+
+ constant_relaxation_time: 1e-14
+
+ write_mesh: true
+ nworkers: 32

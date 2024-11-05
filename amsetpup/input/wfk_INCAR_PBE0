@@ -1,0 +1,35 @@
+# Settings:
+ENCUT  = 450
+ADDGRID = True
+PREC   = Accurate
+LCHARG = .FALSE.
+LWAVE  = .TRUE.
+IBRION = -1
+LASPH = True
+
+
+# PARALL
+#KPAR = 
+
+# SCF:
+EDIFF  = 1E-8
+ISMEAR = 0
+SIGMA   = 0.01
+NELM = 200
+
+# DOS:
+LORBIT = 14
+NEDOS  = 2000
+
+# DEFORM:
+#NSW = 1
+#ICORELEVEL = 1
+
+# PBE0 ISYM
+ISYM  =  3
+
+# PBE0:
+GGA = PE
+LHFCALC = True
+ALGO = Damped
+TIME = 0.5

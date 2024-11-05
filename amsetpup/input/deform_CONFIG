@@ -1,0 +1,10 @@
+# vaspup2.0 - Seán Kavanagh (sean.kavanagh.19@ucl.ac.uk), 2023
+# This is config for automating NBANDS convergence.
+# (For LOPTICS calculation)(High-frequency dielectric constant)
+# Make sure to rename to CONFIG before running
+
+compute_deform="1"              # 1 for ON, 0 for OFF
+num_deform="9"  # Number of deformations (without the underformed POSCAR)
+:
+run_vasp="0"            # Run VASP after generating the files? (1 for ON, 0 for OFF)
+#name="CdTe" # Optional name to append to each jobname (remove "#")

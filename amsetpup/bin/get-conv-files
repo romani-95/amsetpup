@@ -1,0 +1,6 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+cp /rds/homes/c/claesr/codes/amsetpup/input/CONFIG .
+cp /rds/homes/c/claesr/codes/amsetpup/input/KPOINTS .
+cp /rds/homes/c/claesr/codes/amsetpup/input/job_conv.sh job
+cp /rds/homes/c/claesr/codes/amsetpup/input/conv_INCAR INCAR

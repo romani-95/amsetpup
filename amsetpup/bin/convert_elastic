@@ -1,0 +1,4 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+
+echo "Convert elastic constant in GPa" && cp /rds/homes/c/claesr/codes/amsetpup/script/convert_elastic convert_elastic_script && chmod u+x convert_elastic_script && ./convert_elastic_script OUTCAR # your processing here

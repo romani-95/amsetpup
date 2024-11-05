@@ -1,0 +1,15 @@
+ALGO = Normal
+GGA = PS
+EDIFF = 1e-07
+ENCUT = 300  # Need ENCUT/ENMAX included in the INCAR for vaspup2.0 to converge-test this parameter
+IBRION = -1  # singleshot calc
+ISPIN = 1  # 2 if system is magnetic
+LORBIT = 11  # lm-projected DOS info
+LREAL = False
+NEDOS = 2000
+NELM = 100
+NSW = 1
+PREC = Accurate
+SIGMA = 0.05
+LWAVE = False
+LASPH = True

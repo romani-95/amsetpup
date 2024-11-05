@@ -1,0 +1,263 @@
+#!/bin/bash
+# amsetpup - Romain Claes, 2024 (custom script)
+
+[ ! -f input/CONFIG ] && echo "CONFIG file not found in ./input/ directory" && exit
+[ ! -f input/POTCAR ] && echo "POTCAR file not found in ./input/ directory" && exit
+[ ! -f input/POSCAR_PBE0 ] && echo "PBE0 POSCAR file not found in ./input/ directory" && exit
+[ ! -f input/POSCAR_PS ] && echo "PS POSCAR file not found in ./input/ directory" && exit
+
+# Read CONFIG file to get parameters
+source input/CONFIG
+
+### WFK calc ###
+mkdir wfk
+cd wfk
+mkdir PBE0
+cd PBE0
+
+IFS=',' read -ra ADDR <<< "$kpoints_PBE0" # Split the kpoints by comma
+for i in "${ADDR[@]}"; do
+  firstk=$(echo $i | head -n1 | awk '{print $1;}')
+  sub=${i//[ ]/}
+  if [ "$firstk" -gt 19 ]; then
+  sub="__$sub" # Add double underscore for >19 to ensure correct ordering for data-converge
+
+  elif [ "$firstk" -gt 9 ]; then
+  sub="_$sub" # Add underscore for >9 to ensure correct ordering for data-converge
+  fi
+
+  mkdir "k$sub"
+  cd "k$sub"
+  cp ../../../input/KPOINTS .
+  sed -i "4s/.*/${i}/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/wfk_INCAR_PBE0 INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+  
+  cp ../../../input/POTCAR .
+  cp ../../../input/POSCAR_PBE0 POSCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job_wfk_PBE0.sh job.sh
+
+  let n=n+1
+  cd ..
+done
+cd ../
+
+mkdir PS
+cd PS
+IFS=',' read -ra ADDR <<< "$kpoints" # Split the kpoints by comma
+for i in "${ADDR[@]}"; do
+  firstk=$(echo $i | head -n1 | awk '{print $1;}')
+  sub=${i//[ ]/}
+  if [ "$firstk" -gt 19 ]; then
+  sub="__$sub" # Add double underscore for >19 to ensure correct ordering for data-converge
+
+  elif [ "$firstk" -gt 9 ]; then
+  sub="_$sub" # Add underscore for >9 to ensure correct ordering for data-converge
+  fi
+
+  mkdir "k$sub"
+  cd "k$sub"
+  cp ../../../input/KPOINTS .
+  sed -i "4s/.*/${i}/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/wfk_INCAR INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+
+  cp ../../../input/POTCAR .
+  cp ../../../input/POSCAR_PS POSCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job_wfk.sh job.sh
+
+  let n=n+1
+  cd ..
+done
+cd ..
+
+mkdir PS_with_PBE0_struct
+cd PS_with_PBE0_struct
+IFS=',' read -ra ADDR <<< "$kpoints" # Split the kpoints by comma
+for i in "${ADDR[@]}"; do
+  firstk=$(echo $i | head -n1 | awk '{print $1;}')
+  sub=${i//[ ]/}
+  if [ "$firstk" -gt 19 ]; then
+  sub="__$sub" # Add double underscore for >19 to ensure correct ordering for data-converge
+
+  elif [ "$firstk" -gt 9 ]; then
+  sub="_$sub" # Add underscore for >9 to ensure correct ordering for data-converge
+  fi
+
+  mkdir "k$sub"
+  cd "k$sub"
+  cp ../../../input/KPOINTS .
+  sed -i "4s/.*/${i}/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/wfk_INCAR INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+
+  cp ../../../input/POTCAR .
+  cp ../../../input/POSCAR_PBE0 POSCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job_wfk.sh job.sh
+  cp /rds/homes/c/claesr/codes/amsetpup/input/settings_CRTA.yaml settings.yaml
+  let n=n+1
+  cd ..
+done
+cd ../..
+
+### Deform ###
+
+mkdir deform_calc
+cd deform_calc
+numb_deform=$(find ../input/POSCAR-0* -type f | wc -l)
+#echo $numb_deform
+for i in $(eval echo "{1..$numb_deform}"); do
+  sub="-"
+  dirname="def$sub$i"
+  mkdir "$dirname"
+  cd "$dirname"
+
+  cp ../../input/KPOINTS .
+  sed -i "4s/.*/$kpoints_conv/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/deform_INCAR_PBE0 INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+  cp ../../input/POTCAR .
+  if [ "$i" -lt 10 ]; then
+  cp ../../input/POSCAR-00$i POSCAR
+  fi
+  if [ "$i" -gt 9 ]; then
+  cp ../../input/POSCAR-0$i POSCAR
+  fi
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job_deform.sh job.sh
+  
+  cd ..
+done
+mkdir "undeformed"
+cd "undeformed"
+cp ../../input/KPOINTS .
+sed -i "4s/.*/$kpoints_conv/" KPOINTS
+cp /rds/homes/c/claesr/codes/amsetpup/input/deform_INCAR_PBE0 INCAR
+sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+cp ../../input/POTCAR .
+cp ../../input/POSCAR_PBE0 POSCAR
+cp /rds/homes/c/claesr/codes/amsetpup/input/job_deform.sh job.sh
+
+cd ../..
+
+### Optical high freq ###
+
+mkdir optics_diel
+cd optics_diel
+
+mkdir nbands_converge
+cd nbands_converge
+for i in $(eval echo "{$nbands_start..$nbands_end..$nbands_step}"); do
+  sub=""
+  if [ "$i" -gt 999 ]; then # Add double underscore for >999 to ensure correct ordering for nbands-epsopt-data-converge
+  sub="__"
+  elif [ "$i" -gt 99 ]; then  # Add single underscore for >99 to ensure correct ordering for nbands-epsopt-data-converge
+  sub="_"
+  fi
+
+  dirname="nbands$sub$i"
+  mkdir "$dirname"
+  cd "$dirname"
+
+  cp ../../../input/KPOINTS .
+  sed -i "4s/.*/$kpoints_conv/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/nbands_INCAR INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+  sed -i "s/NBANDS .*$/NBANDS  = $i/g" INCAR
+  cp ../../../input/POTCAR .
+  cp ../../../input/POSCAR_PBE0 POSCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job_optics.sh job.sh
+  cd ..
+done
+cd ..
+
+mkdir PBE0_calc
+cd PBE0_calc
+cp /rds/homes/c/claesr/codes/amsetpup/input/optics_INCAR_PBE0 INCAR
+sed -i "s/ENCUT .*$/ENCUT  = $encut_conv eV/g" INCAR
+cp ../../input/KPOINTS .
+sed -i "4s/.*/$kpoints_conv/" KPOINTS
+cp ../../input/POTCAR .
+cp ../../input/POSCAR_PBE0 POSCAR
+cp /rds/homes/c/claesr/codes/amsetpup/input/job_optics.sh job.sh
+cp /rds/homes/c/claesr/codes/amsetpup/input/NEED_CONV .
+cd ../..
+
+### Elastic & DFPT ###
+
+mkdir DFPT_FD
+cd DFPT_FD 
+mkdir convergence
+cd convergence
+
+# Converge ENCUT
+mkdir cutoff_converge
+cd cutoff_converge
+for i in $(eval echo "{$encut_start..$encut_end..$encut_step}"); do
+  if [ "$i" -gt 999 ]; then
+  dirname="e_$i" # Add underscore to ensure correct ordering for data-converge
+  else
+  dirname="e$i"
+  fi
+  mkdir "$dirname"
+  cd "$dirname"
+  cp ../../../../input/KPOINTS .
+  sed -i "4s/.*/$kpoints_conv/" KPOINTS
+  cp /rds/homes/c/claesr/codes/amsetpup/input/dfpt_INCAR INCAR
+  cp ../../../../input/POTCAR .
+  cp ../../../../input/POSCAR_PS POSCAR
+  sed -i "s/ENMAX .*$/ENMAX  = $i eV/g" INCAR
+  sed -i "s/ENCUT .*$/ENCUT  = $i eV/g" INCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job.sh .
+  cd ..
+done
+cd ..
+# Converge kpoints
+mkdir "kpoint_converge"
+cd "kpoint_converge"
+n=1;
+
+IFS=',' read -ra ADDR <<< "$kpoints" # Split the kpoints by comma
+for i in "${ADDR[@]}"; do
+  firstk=$(echo $i | head -n1 | awk '{print $1;}')
+  sub=${i//[ ]/}
+  if [ "$firstk" -gt 19 ]; then
+  sub="__$sub" # Add double underscore for >19 to ensure correct ordering for data-converge
+
+  elif [ "$firstk" -gt 9 ]; then
+  sub="_$sub" # Add underscore for >9 to ensure correct ordering for data-converge
+  fi
+
+  mkdir "k$sub"
+  cd "k$sub"
+  cp ../../../../input/KPOINTS .
+  cp /rds/homes/c/claesr/codes/amsetpup/input/dfpt_INCAR INCAR
+  cp ../../../../input/POTCAR .
+  cp ../../../../input/POSCAR_PS POSCAR
+  cp /rds/homes/c/claesr/codes/amsetpup/input/job.sh .
+
+  sed -i "4s/.*/${i}/" KPOINTS
+
+  let n=n+1
+  cd ..
+done
+cd ../..
+
+mkdir dfpt
+cd dfpt
+cp ../../input/KPOINTS .
+cp /rds/homes/c/claesr/codes/amsetpup/input/dfpt_INCAR INCAR
+cp ../../input/POTCAR .
+cp ../../input/POSCAR_PS POSCAR
+cp /rds/homes/c/claesr/codes/amsetpup/input/job_dfpt.sh job.sh
+cp /rds/homes/c/claesr/codes/amsetpup/input/NEED_CONV .
+cd ..
+mkdir elastic
+cd elastic
+cp ../../input/KPOINTS .
+cp /rds/homes/c/claesr/codes/amsetpup/input/elastic_INCAR INCAR
+cp ../../input/POTCAR .
+cp ../../input/POSCAR_PS POSCAR
+cp /rds/homes/c/claesr/codes/amsetpup/input/job_elastic.sh job.sh
+cp /rds/homes/c/claesr/codes/amsetpup/input/NEED_CONV .
+
+cd ../..
